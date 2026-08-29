@@ -18,7 +18,7 @@ export class WordsController {
   }
 
   @Post('translate')
-  translate(@Body() dto: TranslateWordDto) {
-    return this.wordsService.translate(dto);
+  async translate(@Body() dto: TranslateWordDto) {
+    return await this.wordsService.translate(dto);
   }
 }

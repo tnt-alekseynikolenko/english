@@ -7,6 +7,10 @@ import { AiService } from '../ai/ai.service';
 import { TranslateWordDto } from './dto/translate-word.dto';
 import { VocabularyService } from '../vocabulary/vocabulary.service';
 import { UserService } from '../user/user.service';
+import {
+  BadGatewayException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
 @Injectable()
 export class WordsService {
@@ -18,11 +22,11 @@ constructor(
   ) {}
 
   async translate(dto: TranslateWordDto) {
-    const result = await this.aiService.translateWord(dto.word);
     try {
 
+      const result = await this.aiService.translateWord(dto.word);
       if (!result) {
-        throw new Error('Response is empty');
+        throw new BadGatewayException('AI returned an empty response');
       }
     
       const word = JSON.parse(result);
@@ -34,7 +38,7 @@ constructor(
         !('word' in word) ||
         !('translations' in word)
       ) {
-        throw new Error('Response is not an object');
+        throw new BadGatewayException('AI returned an invalid response');
       }
 
       const userId = this.userService.getUser();
@@ -53,8 +57,12 @@ constructor(
       );
 
       return word;
-  } catch {
-    throw new Error('Invalid JSON response from AI');
+  } catch (e) {
+   if (e instanceof BadGatewayException) {
+      throw e;
+    }
+
+    throw new BadGatewayException('Invalid JSON response from AI');
   }
     
   }
