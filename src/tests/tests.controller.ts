@@ -6,10 +6,24 @@ import { UserService } from '../user/user.service';
 export class TestsController {
   constructor(private readonly testsService: TestsService, private readonly userService: UserService) {}
 
+  private async getWord(showLastWords: boolean = false) {
+    const userId = this.userService.getUser();
+        return await this.testsService.getWord(userId, showLastWords);   
+  }
+
   @Get('word')
   async word() {
+    return this.getWordAndUpdateRepeats(false);
+  }
+
+  @Get('word/last')
+  async wordLast() {
+    return this.getWordAndUpdateRepeats(true);
+  }
+
+  private async getWordAndUpdateRepeats(showLastWords = false) {
     const userId = this.userService.getUser();
-    const word = await this.testsService.getWord(userId);
+    const word = await this.getWord(showLastWords);
 
     if (word) {
       await this.testsService.updateRepeats(userId, word.translation_id);
@@ -20,9 +34,7 @@ export class TestsController {
 
   @Get('sentence')
   async sentence() {
-    const userId = this.userService.getUser();
-    const word = await this.testsService.getWord(userId);
-
+    const word = await this.getWord();
     if (!word) {
       return null;
     }
@@ -32,9 +44,7 @@ export class TestsController {
 
   @Get('phrase')
   async phrase() {
-    const userId = this.userService.getUser();
-    const word = await this.testsService.getWord(userId);
-
+    const word = await this.getWord();
     if (!word) {
       return null;
     }

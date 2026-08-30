@@ -24,13 +24,12 @@ constructor(
     return result.rows.length > 0;
   }
 
-  async getWord(userId): Promise<TestWord | null> {
+  async getWord(userId, showLastWords?: boolean): Promise<TestWord | null> {
     let displayFrequency = Math.floor(Math.random() * 3) === 2 ? "normal" : "more_often";
     if (displayFrequency === "more_often" && !(await this.hasWordsByDisplayFrequency(userId, displayFrequency))) {
       displayFrequency = "normal";
     }
 
-    const showLastWords = Math.random() < 2 / 3;
     const result = await this.database.query(`
       SELECT *
         FROM (
@@ -51,7 +50,7 @@ constructor(
             ON s.user_id = v.user_id
             AND s.translation_id = t.id
         WHERE v.user_id = $1
-          AND w.display_frequency = $2` + (showLastWords ? ` ORDER BY repeats ASC LIMIT 10` : ``) + `
+          AND w.display_frequency = $2` + (showLastWords ? ` ORDER BY id DESC LIMIT 20` : ``) + `
       ) x
       ORDER BY RANDOM()
       LIMIT 1;`,
