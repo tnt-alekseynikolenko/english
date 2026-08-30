@@ -30,17 +30,31 @@ constructor(
       displayFrequency = "normal";
     }
 
+    const showLastWords = Math.random() < 2 / 3;
     const result = await this.database.query(`
-      SELECT w.id, w.word, w.transcription, w.lang lang_word, 
-      t.id translation_id, t.translation, t.pos, COALESCE(s.repeats + 1, 1) AS repeats,
-      t.lang lang_translation
-      FROM words w
-      INNER JOIN translations t ON t.word_id = w.id 
-      INNER JOIN vocabulary v ON v.translation_id = t.id 
-      LEFT JOIN translations_stat s ON s.user_id = v.user_id AND s.translation_id = t.id
-      WHERE v.user_id = $1 AND w.display_frequency = $2
+      SELECT *
+        FROM (
+        SELECT
+            w.id,
+            w.word,
+            w.transcription,
+            w.lang AS lang_word,
+            t.id AS translation_id,
+            t.translation,
+            t.pos,
+            COALESCE(s.repeats + 1, 1) AS repeats,
+            t.lang AS lang_translation
+        FROM words w
+        INNER JOIN translations t ON t.word_id = w.id
+        INNER JOIN vocabulary v ON v.translation_id = t.id
+        LEFT JOIN translations_stat s
+            ON s.user_id = v.user_id
+            AND s.translation_id = t.id
+        WHERE v.user_id = $1
+          AND w.display_frequency = $2` + (showLastWords ? ` ORDER BY repeats ASC LIMIT 10` : ``) + `
+      ) x
       ORDER BY RANDOM()
-      LIMIT 1`,
+      LIMIT 1;`,
       [userId, displayFrequency],
     );
 
