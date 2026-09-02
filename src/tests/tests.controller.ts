@@ -8,7 +8,12 @@ export class TestsController {
 
   private async getWord(showLastWords: boolean = false) {
     const userId = this.userService.getUser();
-        return await this.testsService.getWord(userId, showLastWords);   
+    return await this.testsService.getWord(userId, showLastWords);   
+  }
+
+  private async getSentence(showLastSentences: boolean = false) {
+    const userId = this.userService.getUser();
+    return await this.testsService.getSentence(userId, showLastSentences);   
   }
 
   @Get('word')
@@ -32,6 +37,7 @@ export class TestsController {
     return word;
   }
 
+  /*
   @Get('sentence')
   async sentence() {
     const word = await this.getWord();
@@ -40,6 +46,12 @@ export class TestsController {
     }
 
     return this.testsService.generateSentence(word);
+  }
+  */
+
+  @Get('sentence')
+  async sentence() {
+    return await this.getSentence();
   }
 
   @Get('phrase')

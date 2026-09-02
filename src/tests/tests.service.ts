@@ -82,4 +82,29 @@ constructor(
   async generatePhrase(word: TestWord) {
     return await this.aiService.generatePhrase(word);
   }
+
+  async getSentence(userId, showLastSentences?: boolean): Promise<TestWord | null> {
+    const result = await this.database.query(`
+      SELECT *
+        FROM (
+        SELECT
+            s.id,
+            s.sentence AS word,
+            NULL AS transcription,
+            NULL AS lang_word,
+            NULL AS translation_id,
+            translation,
+            NULL AS pos,
+            0 AS repeats,
+            NULL AS lang_translation
+        FROM sentences s
+        WHERE s.user_id = $1` + (showLastSentences ? ` ORDER BY id DESC LIMIT 20` : ``) + `
+      ) x
+      ORDER BY RANDOM()
+      LIMIT 1;`,
+      [userId],
+    );
+
+    return result.rows[0] ?? null;   
+  }  
 }

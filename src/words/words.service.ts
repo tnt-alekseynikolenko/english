@@ -30,7 +30,6 @@ constructor(
       }
     
       const word = JSON.parse(result);
-
       if (
         typeof word !== 'object' ||
         word === null ||
