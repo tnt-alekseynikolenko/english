@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { TestWord } from './types/test-word.type';
 import { AiService } from '../ai/ai.service';
+import { TestSentence } from './types/test-sentence.type';
 
 @Injectable()
 export class TestsService {
@@ -83,28 +84,19 @@ constructor(
     return await this.aiService.generatePhrase(word);
   }
 
-  async getSentence(userId, showLastSentences?: boolean): Promise<TestWord | null> {
-    const result = await this.database.query(`
-      SELECT *
-        FROM (
-        SELECT
-            s.id,
-            s.sentence AS word,
-            NULL AS transcription,
-            NULL AS lang_word,
-            NULL AS translation_id,
-            translation,
-            NULL AS pos,
-            0 AS repeats,
-            NULL AS lang_translation
-        FROM sentences s
-        WHERE s.user_id = $1` + (showLastSentences ? ` ORDER BY id DESC LIMIT 20` : ``) + `
-      ) x
-      ORDER BY RANDOM()
-      LIMIT 1;`,
-      [userId],
-    );
+  async getSentence(userId: number, lastSentencesOnly?: boolean): Promise<TestSentence[]> {
+    const subQuery = `
+      SELECT
+        id,
+        sentence,
+        translation
+      FROM sentences
+      WHERE user_id = $1`;
 
-    return result.rows[0] ?? null;   
+    const sql = lastSentencesOnly ? `
+      SELECT * FROM (${subQuery} ORDER BY id DESC LIMIT 10) AS subquery ORDER BY RANDOM()` : subQuery + ` ORDER BY RANDOM() LIMIT 40`;
+
+    const result = await this.database.query(sql, [userId]);
+    return result.rows;
   }  
 }

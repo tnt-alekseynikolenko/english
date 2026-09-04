@@ -50,8 +50,13 @@ export class TestsController {
   */
 
   @Get('sentence')
-  async sentence() {
+  async sentences() {
     return await this.getSentence();
+  }
+
+  @Get('sentence/last')
+  async lastSentences() {
+    return await this.getSentence(true);
   }
 
   @Get('phrase')

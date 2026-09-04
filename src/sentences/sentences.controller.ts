@@ -18,4 +18,9 @@ export class SentencesController {
         throw new NotFoundException('Sentence not found');
     }
   }
+
+  @Get('list')
+  async getList() {
+    return await this.sentencesService.getList();
+  }
 }
