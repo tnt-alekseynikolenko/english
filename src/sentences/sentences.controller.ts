@@ -23,4 +23,10 @@ export class SentencesController {
   async getList() {
     return await this.sentencesService.getList();
   }
+
+  @Get('count')
+  async getCount() {
+    const count = await this.sentencesService.getCount();
+    return { count };
+  }
 }

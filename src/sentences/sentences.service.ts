@@ -40,4 +40,16 @@ constructor(
       throw error;
     }
   }
+
+  async getCount(): Promise<number> {
+    try {
+      const result = await this.database.query<{ count: string }>(
+        `SELECT COUNT(*) AS count FROM sentences`,
+      ); 
+    
+      return parseInt(result.rows[0].count, 10);
+    } catch (error) {
+      throw error;
+    }
+  }    
 }
