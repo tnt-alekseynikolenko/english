@@ -94,7 +94,7 @@ constructor(
       WHERE user_id = $1`;
 
     const sql = lastSentencesOnly ? `
-      SELECT * FROM (${subQuery} ORDER BY id DESC LIMIT 10) AS subquery ORDER BY RANDOM()` : subQuery + ` ORDER BY RANDOM() LIMIT 40`;
+      SELECT * FROM (${subQuery} ORDER BY id DESC LIMIT 15) AS subquery ORDER BY RANDOM()` : subQuery + ` ORDER BY RANDOM() LIMIT 50`;
 
     const result = await this.database.query(sql, [userId]);
     return result.rows;
