@@ -87,11 +87,15 @@ constructor(
   async getSentence(userId: number, lastSentencesOnly?: boolean): Promise<TestSentence[]> {
     const subQuery = `
       SELECT
-        id,
-        sentence,
-        translation
-      FROM sentences
-      WHERE user_id = $1`;
+        s.id,
+        s.sentence,
+        s.translation,
+        a_1.filename sentence_audio_filename, 
+        a_2.filename translation_audio_filename
+      FROM sentences s
+      LEFT JOIN audio a_1 ON a_1.id = s.sentence_audio_id 
+      LEFT JOIN audio a_2 ON a_2.id = s.translation_audio_id
+      WHERE s.user_id = $1`;
 
     const sql = lastSentencesOnly ? `
       SELECT * FROM (${subQuery} ORDER BY id DESC LIMIT 15) AS subquery ORDER BY RANDOM()` : subQuery + ` ORDER BY RANDOM() LIMIT 50`;

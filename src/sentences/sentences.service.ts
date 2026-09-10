@@ -8,22 +8,21 @@ constructor(
     private readonly database: DatabaseService,
   ) {}
 
-  async add(
-    userId: number,
-    sentence: string,
-    translation: string,
-  ): Promise<boolean> {
-    try { 
-    const result = await this.database.query(
-      `INSERT INTO sentences (user_id, sentence, translation)
-        VALUES ($1, $2, $3)`,
-      [userId, sentence, translation],
-    );
+async add(
+  userId: number,
+  sentence: string,
+  translation: string,
+  sentenceAudioId: number,
+  translationAudioId: number
+): Promise<number> {
+  const result = await this.database.query(
+    `INSERT INTO sentences (user_id, sentence, translation, sentence_audio_id, translation_audio_id)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING id`,
+    [userId, sentence, translation, sentenceAudioId, translationAudioId],
+  );
 
-    return true;
-  } catch (error) {
-    throw error;
-  }
+  return result.rows[0].id;
 }
 
   async getList(): Promise<TestSentence[]> {

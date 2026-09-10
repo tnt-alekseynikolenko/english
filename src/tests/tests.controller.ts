@@ -1,10 +1,15 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { TestsService } from './tests.service';
 import { UserService } from '../user/user.service';
+import { AudioService } from '../audio/audio.service';
 
 @Controller('tests')
 export class TestsController {
-  constructor(private readonly testsService: TestsService, private readonly userService: UserService) {}
+  constructor(
+    private readonly testsService: TestsService, 
+    private readonly userService: UserService,
+    private readonly audioService: AudioService
+  ) {}
 
   private async getWord(showLastWords: boolean = false) {
     const userId = this.userService.getUser();
@@ -13,7 +18,23 @@ export class TestsController {
 
   private async getSentence(showLastSentences: boolean = false) {
     const userId = this.userService.getUser();
-    return await this.testsService.getSentence(userId, showLastSentences);   
+    const sentences = await this.testsService.getSentence(userId, showLastSentences);  
+  
+    const result = await Promise.all(
+      sentences.map(async (sentence) => ({
+        id: sentence.id,
+        sentence: sentence.sentence,
+        translation: sentence.translation,
+        sentence_audio: await this.audioService.getAudioBase64(
+          sentence.sentence_audio_filename,
+        ),
+        translation_audio: await this.audioService.getAudioBase64(
+          sentence.translation_audio_filename,
+        ),
+      })),
+    );
+
+    return result;
   }
 
   @Get('word')

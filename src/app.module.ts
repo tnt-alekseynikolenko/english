@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { VocabularyModule } from './vocabulary/vocabulary.module';
 import { TestsModule } from './tests/tests.module';
 import { SentencesModule } from './sentences/sentences.module';
+import { AudioModule } from './audio/audio.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SentencesModule } from './sentences/sentences.module';
     VocabularyModule,
     TestsModule,
     SentencesModule,
+    AudioModule
   ],
   controllers: [AppController],
   providers: [AppService],
