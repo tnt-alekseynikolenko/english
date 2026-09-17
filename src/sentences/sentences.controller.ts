@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Body, Controller, Post, Get, NotFoundException, InternalServerErrorException, Param, ParseIntPipe } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { AddSentenceDto } from './dto/add-sentence.dto';
 import { SentencesService } from './sentences.service';
@@ -37,5 +37,10 @@ export class SentencesController {
   async getCount() {
     const count = await this.sentencesService.getCount();
     return { count };
+  }
+
+  @Get('lift/:id')
+  async liftSentence(@Param('id', ParseIntPipe) sentenceId: number) {
+    await this.sentencesService.liftSentence(sentenceId);
   }
 }

@@ -16,8 +16,8 @@ async add(
   translationAudioId: number
 ): Promise<number> {
   const result = await this.database.query(
-    `INSERT INTO sentences (user_id, sentence, translation, sentence_audio_id, translation_audio_id)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO sentences (user_id, sentence, translation, sentence_audio_id, translation_audio_id, sequence)
+     VALUES ($1, $2, $3, $4, $5, (SELECT COALESCE(MAX(sequence), 0) + 1 FROM sentences))
      RETURNING id`,
     [userId, sentence, translation, sentenceAudioId, translationAudioId],
   );
@@ -30,7 +30,7 @@ async add(
       const result = await this.database.query<TestSentence>(
         `SELECT id, sentence, translation
          FROM sentences
-         ORDER BY id DESC`,
+         ORDER BY sequence DESC`,
       );
 
       return result.rows;
@@ -50,5 +50,14 @@ async add(
     } catch (error) {
       throw error;
     }
-  }    
+  }  
+  
+  async liftSentence(sentenceId: number): Promise<void> {
+    const result = await this.database.query(
+      `UPDATE sentences 
+      SET sequence = (SELECT COALESCE(MAX(sequence), 0) + 1 FROM sentences) 
+      WHERE id = $1`,
+      [sentenceId],
+    );
+  }
 }
